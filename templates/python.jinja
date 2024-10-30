@@ -1,0 +1,14 @@
+# Tests for the {{name}} WDL library
+
+import pytest
+import miniwdl
+
+@pytest.fixture
+def wdl():
+    return miniwdl.Workflow.load("{{name}}.wdl")
+
+def test_hello(wf):
+    task = wdl.tasks["hello"]
+    inputs = {}
+    outputs = wdl.invoke(task, inputs)
+    assert outputs["salutation"] == "Hello, world!"
