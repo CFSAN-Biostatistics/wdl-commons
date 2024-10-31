@@ -1,0 +1,11 @@
+show_progress: true
+# proxies:
+#   http: 
+#     env: HTTP
+#     value: http://proxy.example.com:8080
+#   https: 
+#     env: HTTPS
+#     value: https://proxy.example.com:8080
+default_executors: 
+  - miniwdl
+  # - cromwell

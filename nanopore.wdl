@@ -4,7 +4,41 @@
 
 version 1.2
 
-task basecall {
+
+# docker run \
+#     --gpus 1 \
+#     -v $PWD:$PWD \
+#     nanoporetech/dorado \
+#     dorado basecaller "/models/dna_r10.4.1_e8.2_400bps_hac@v3.5.2" $PWD/fast5/ \
+# > output.sam
+
+task dorado_basecall {
+    File pod5
+    String kit
+    String model = "/models/dna_r10.4.1_e8.2_400bps_hac@v3.5.2"
+
+    command <<<
+        dorado basecaller ~{model} ~{pod5} --kit-name ~{kit} > calls.bam
+        dorado demux --output-dir /output --no-classify calls.bam
+    >>>
+
+    output {
+        Array[File] bams = glob("/output/*.bam")
+    }
+
+    parameter_meta {
+        pod5: "Path to a Pod5 file."
+        kit: "Name of the sequencing kit used."
+    }
+
+    runtime {
+        docker: "nanoporetech/dorado"
+        cpu: 1
+        gpu: 1
+    }
+}
+
+task guppy_basecall {
     File fast5
     File config
 
@@ -13,7 +47,7 @@ task basecall {
     >>>
 
     output {
-        Array[File] fastqs = "${fast5}.fastq"
+        Array[File] fastqs = glob("*.fastq")
     }
     runtime {
         docker: "ontresearch/guppy:5.0.11"

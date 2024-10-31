@@ -7,7 +7,7 @@ import miniwdl
 def wdl():
     return miniwdl.Workflow.load("{{name}}.wdl")
 
-def test_hello(wf):
+def test_hello(wdl):
     task = wdl.tasks["hello"]
     inputs = {}
     outputs = wdl.invoke(task, inputs)

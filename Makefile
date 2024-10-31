@@ -8,8 +8,13 @@ new: ## Create a new WDL library with a simple template.
 	@echo "Creating a new WDL library..."
 	@echo "Enter the name of the library:"
 	@read name; \
-	
-	
+	echo "Your full name"; \
+	read author; \
+	echo "Your email address"; \
+	read email; \
+	echo "Creating new library $$name..."; \
+	jinja2 templates/wdl.jinja -D author="$$author" -D name="$$name" -D email="$$email" > $$name.wdl; \
+	jinja2 templates/python.jinja -D name=$$name > tests/test_$$name.py
 
 test: ## Test WDL library tasks using Pytest and MiniWDL.
 	@echo "Running tests..."

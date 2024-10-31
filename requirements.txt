@@ -1,2 +1,6 @@
-jinja
+jinja2
+jinja2-cli
 miniwdl
+pytest
+hypothesis
+requests

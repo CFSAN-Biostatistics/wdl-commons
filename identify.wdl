@@ -1,4 +1,4 @@
-version 1.0
+version 1.2
 
 # This project constitutes a work of the United States Government and is not
 # subject to domestic copyright protection under 17 USC § 105. No Rights Are 
@@ -14,6 +14,31 @@ version 1.0
 # statements. 
 
 # This program is free software: you can redistribute it and/or modify it.
+
+task bam {
+    input {
+        File file
+    }
+
+    command <<<
+        set -e
+        samtools view -H ~{file} | grep '^@RG' | cut -f2 | cut -d: -f2
+    >>>
+
+    output {
+        String name = read_string(stdout())
+    }
+
+    parameter_meta {
+        file: "Reads file in BAM format."
+    }
+
+    runtime {
+        container: "staphb/samtools:1.19"
+        cpu: 1
+        memory: "1024 MB"
+    }
+}
 
 task fastq {
 
