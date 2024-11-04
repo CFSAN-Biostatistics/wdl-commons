@@ -2,7 +2,7 @@
 # Common nanopore tasks for biosurveillance of foodborne pathogens.
 # Author: Justin Payne <justin.payne@fda.hhs.gov>
 
-version 1.2
+version 1.1
 
 
 # docker run \
@@ -13,9 +13,11 @@ version 1.2
 # > output.sam
 
 task dorado_basecall {
-    File pod5
-    String kit
-    String model = "/models/dna_r10.4.1_e8.2_400bps_hac@v3.5.2"
+    input {
+        File pod5
+        String kit
+        String model = "/models/dna_r10.4.1_e8.2_400bps_hac@v3.5.2"
+    }
 
     command <<<
         dorado basecaller ~{model} ~{pod5} --kit-name ~{kit} > calls.bam
@@ -29,18 +31,21 @@ task dorado_basecall {
     parameter_meta {
         pod5: "Path to a Pod5 file."
         kit: "Name of the sequencing kit used."
+        model: "Path to the basecalling model."
     }
 
     runtime {
         docker: "nanoporetech/dorado"
         cpu: 1
-        gpu: 1
+        gpu: true
     }
 }
 
 task guppy_basecall {
-    File fast5
-    File config
+    input {
+        File fast5
+        File config
+    }
 
     command <<<
         guppy_basecaller -i ~{fast5} -c ~{config}
@@ -58,8 +63,10 @@ task guppy_basecall {
 }
 
 task assemble {
-    File fastq
-    File config
+    input {
+        File fastq
+        File config
+    }
 
     command <<<
         flye --nano-raw ~{fastq} --config ~{config}
@@ -68,6 +75,7 @@ task assemble {
     output {
         File assembly = "${fastq}.assembly.fasta"
     }
+
     runtime {
         docker: "staphb/flye:2.8"
         cpu: 16

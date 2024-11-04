@@ -1,5 +1,3 @@
-version 1.0
-
 # This project constitutes a work of the United States Government and is not
 # subject to domestic copyright protection under 17 USC § 105. No Rights Are 
 # Reserved.
@@ -15,6 +13,8 @@ version 1.0
 
 # This program is free software: you can redistribute it and/or modify it.
 
+version 1.1
+
 task fromgz {
 
     input {
@@ -29,8 +29,12 @@ task fromgz {
         File out = stdout()
     }
 
+    parameter_meta {
+        in: "File in GZIP format."
+    }
+
     runtime {
-        container: "ubuntu:xenial"
+        container: "ubuntu:focal"
         cpu: 1
         memory: "1024 MB"
     }
@@ -51,8 +55,12 @@ task togz {
         File out = stdout()
     }
 
+    parameter_meta {
+        in: "A file to compress."
+    }
+
     runtime {
-        container: "ubuntu:xenial"
+        container: "ubuntu:focal"
         cpu: 1
         memory: "1024 MB"
     }
@@ -65,11 +73,15 @@ task fromzstd {
     }
 
     command <<<
-        zstd -d ~{in} out
+        zstd -d ~{in} -c
     >>>
 
     output {
-        File out
+        File out = stdout()
+    }
+
+    parameter_meta {
+        in: "File in ZSTD format."
     }
 
     runtime {
@@ -83,15 +95,20 @@ task tozstd {
 
     input {
         File in
-        Int? compression = 15
+        Int compression = 15
     }
 
     command <<<
-        zstd -~{compression} ~{in} out
+        zstd -~{compression} ~{in} -c
     >>>
 
     output {
-        File out
+        File out = stdout()
+    }
+
+    parameter_meta {
+        in: "A file to compress."
+        compression: "Compression level (1-19)."
     }
 
     runtime {
@@ -105,7 +122,7 @@ task untar {
 
     input {
         File in
-        String? flags = "xavf"
+        String flags = "xavf"
     }
 
     command <<<
@@ -116,8 +133,13 @@ task untar {
         Array[File] files = glob("./out/*")
     }
 
+    parameter_meta {
+        in: "File in TAR format."
+        flags: "tar flags."
+    }
+
     runtime {
-        container: "ubuntu:xenial"
+        container: "ubuntu:focal"
         cpu: 1
         memory: "1024 MB"
     }
@@ -126,22 +148,29 @@ task untar {
 
 task tar {
     input {
-        Array[File] files
-        String? flags = "czvf"
-        String? name = "archive"
-        String? suffix = "tar.gz"
+        Array[File]+ files
+        String flags = "czvf"
+        String name = "archive"
+        String suffix = "tar.gz"
     }
 
     command <<<
-        tar -~{flags} ~{name}.~{suffix} ~{sep=' ' files}
+        tar -~{flags} ~{name}.~{suffix} ~{sep(' ', files)}
     >>>
 
     output {
         File archive = "~{name}.~{suffix}"
     }
 
+    parameter_meta {
+        files: "Files to archive."
+        flags: "tar flags."
+        name: "Name of the archive."
+        suffix: "Archive suffix."
+    }
+
     runtime {
-        container: "ubuntu:xenial"
+        container: "ubuntu:focal"
         cpu: 1
         memory: "1024 MB"
     }

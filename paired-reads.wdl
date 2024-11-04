@@ -1,5 +1,3 @@
-version 1.0
-
 # This project constitutes a work of the United States Government and is not
 # subject to domestic copyright protection under 17 USC § 105. No Rights Are 
 # Reserved.
@@ -15,6 +13,8 @@ version 1.0
 
 # This program is free software: you can redistribute it and/or modify it.
 
+version 1.1
+
 task interleave {
     input {
         File forward
@@ -26,7 +26,7 @@ task interleave {
     >>>
 
     output {
-        File reads
+        File reads = "reads"
     }
 
     runtime {
@@ -36,18 +36,18 @@ task interleave {
     }
 }
 
-task deinterlave {
+task deinterleave {
     input {
         File reads
     }
 
     command <<<
-        cat reads | paste - - - - - - - -  | tee >(cut -f 1-4 | tr "\t" "\n" > forward ) | cut -f 5-8 | tr "\t" "\n" > reverse
+        cat ~{reads} | paste - - - - - - - -  | tee >(cut -f 1-4 | tr "\t" "\n" > forward ) | cut -f 5-8 | tr "\t" "\n" > reverse
     >>>
 
     output {
-        File forward
-        File reverse
+        File forward = "forward"
+        File reverse = "reverse"
     }
 
     runtime {
