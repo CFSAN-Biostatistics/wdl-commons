@@ -26,7 +26,7 @@ def use_file(partial_path):
                 response.raise_for_status()
                 f.write(response.content)
                 yield f.name
-            except requests.HTTPError:
+            except:
                 cached_file.unlink()
                 if subrepo_file.exists():
                     yield str(subrepo_file)
