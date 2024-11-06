@@ -1,0 +1,27 @@
+name: Miniwdl Test CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install the dependencies
+      run: pip install -r requirements.txt
+    
+    - name: Test Miniwdl
+      run: miniwdl run_self_check
+
+    - name: Check workflows
+      run: make check
+
+    - name: Run tests
+      run: make test
