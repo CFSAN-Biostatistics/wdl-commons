@@ -36,5 +36,5 @@ coverage: ## Scan the tasks in each library and determine if a test exists.
 check: ## Alias for 'miniwdl check *.wdl'.
 	@echo "Checking WDL files..."
 	for file in *.wdl; do \
-		miniwdl check $$file; \
+		miniwdl check $$file --suppress CommandShellCheck; \
 	done

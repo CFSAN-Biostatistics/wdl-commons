@@ -1,6 +1,8 @@
 import pytest
 import WDL
 
+from functools import partial
+
 from tests import use_file, run_task
 
 @pytest.fixture
@@ -9,7 +11,10 @@ def wdl():
 
 @pytest.fixture()
 def tasks(wdl):
-    return {task.name: task for task in wdl.tasks}
+    o = type('', (), {})()
+    for task in wdl.tasks:
+        setattr(o, task.name, task)
+    return o
 
 @pytest.fixture
 def run():

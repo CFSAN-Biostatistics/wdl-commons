@@ -28,10 +28,6 @@ def test_use_file(raw):
     from pathlib import Path
     assert Path(raw).is_file()
 
-@pytest.fixture
-def outputs():
-    return {}
-
 def test_hello(run, hello, outputs):
     outputs.update(run(hello, {}))
     assert outputs["WriteGreeting.output_greeting"].strip() == "Hello World"

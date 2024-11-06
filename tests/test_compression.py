@@ -33,10 +33,6 @@ def gz():
 def raw():
     yield from use_file("test/compression/example.raw")
 
-@pytest.fixture
-def outputs():
-    return {}
-
 
 def test_fromgz(run, gz, raw, tasks, outputs):
     inputs = {

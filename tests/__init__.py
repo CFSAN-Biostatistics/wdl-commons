@@ -43,14 +43,20 @@ def use_file(partial_path):
 def run_task(wdl, task, inputs, mode='rt'):
     "Run a workflow task using miniwdl as a subprocess and return the outputs as a dict"
     from subprocess import run, PIPE
+    project = Path(__file__).parent.parent
+    pytest_cache = project / ".pytest_cache"
     curr = os.getcwd()
+    with tempfile.NamedTemporaryFile(dir=pytest_cache, mode='wt', delete=False) as f:
+        json.dump(inputs, f)
     try:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+            
             process = run([
                                 "miniwdl", 
                                 "run", 
-                                wdl, 
-                                *[f'{k}={v}' for k,v in inputs.items()],
+                                wdl,
+                                '-i', 
+                                f.name,
                                 '--verbose',
                                 '--task', 
                                 task.name, 

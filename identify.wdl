@@ -15,13 +15,17 @@
 
 version 1.1
 
+struct Tool {
+    String name
+    String version
+}
+
 task bam {
     input {
         File file
     }
 
     command <<<
-        set -e
         samtools view -H ~{file} | grep '^@RG' | cut -f2 | cut -d: -f2
     >>>
 
@@ -47,8 +51,7 @@ task fastq {
     }
 
     command <<< 
-        set -e
-        gunzip -c ~{file} | head -n 1 | cut -d@ -f2- |cut -d. -f1 
+        head ~{file} -n 1 | cut -d@ -f2- |cut -d. -f1 
     >>>
 
     output {
@@ -73,8 +76,7 @@ task fasta {
     }
 
     command <<< 
-        set -e
-        cat ~{file} | head -n 1 | cut -d'>' -f2
+        head -n 1 ~{file} | cut -d'>' -f2
     >>>
 
     output {
