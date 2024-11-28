@@ -51,7 +51,7 @@ task fastq {
     }
 
     command <<< 
-        head ~{file} -n 1 | cut -d@ -f2- |cut -d. -f1 
+        head ~{file} -n 1 | cut -d@ -f2- |cut -d. -f1 | cut -d':' -f1
     >>>
 
     output {
@@ -76,7 +76,7 @@ task fasta {
     }
 
     command <<< 
-        head -n 1 ~{file} | cut -d'>' -f2
+        head -n 1 ~{file} | cut -d'>' -f2 | cut -d' ' -f1
     >>>
 
     output {
@@ -92,6 +92,5 @@ task fasta {
         cpu: 1
         memory: "1024 MB"
     }
-
-
 }
+

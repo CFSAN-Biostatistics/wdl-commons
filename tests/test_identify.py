@@ -58,11 +58,11 @@ def test_identify_fasta(run, fasta, tasks, outputs):
         "file": fasta,
     }
     outputs.update(run(tasks.fasta, inputs))
-    assert outputs["fasta.name"] == "EXAMPLE"
+    assert outputs["fasta.name"] == "contig00001"
 
 def test_identify_fastq(run, fastq, tasks, outputs):
     inputs = {
         "file": fastq,
     }
     outputs.update(run(tasks.fastq, inputs))
-    assert outputs["fastq.name"] == "EXAMPLE"
+    assert outputs["fastq.name"] == "VL00115"

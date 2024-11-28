@@ -15,6 +15,14 @@
 
 version 1.1
 
+import "identify.wdl"
+
+struct AssemblyInfo {
+    Int? n50
+    Float? coverage
+    Tool tool
+}
+
 task calculateN50 {
 
     input {
