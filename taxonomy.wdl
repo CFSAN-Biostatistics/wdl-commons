@@ -7,7 +7,7 @@ import "identify.wdl" as identify
 
 struct Subsubspecies {
     String name
-    String rank
+    String? rank
 }
 
 struct Organism {
@@ -364,5 +364,135 @@ CODE
         container: "python:3.12"
         cpu: 1
         memory: "512 MB"
+    }
+}
+
+task kraken2 {
+    input {
+        File reads
+        Boolean gz = false
+        Boolean bz2 = false
+    }
+
+    command <<<
+        kraken2 --version 2>&1 | head -n 1 > ver
+        kraken2 ~{if gz then "--gzip-compressed" else ""} ~{if bz2 then "--bzip2-compressed" else ""} --quick --db /kraken2-db --report /out/kraken2_report.txt ~{reads}
+    >>>
+
+    output {
+        String ver = read_string("ver")
+        Array[String] results = read_tsv("/out/kraken2_report.txt")
+    }
+
+    runtime {
+        container: "staphb/kraken2:2.0.9-beta"
+        cpu: 1
+        memory: "512 MB"
+    }
+
+    parameter_meta {
+        reads: "Reads in FASTQ format."
+    }
+}
+
+task parse_kraken2 {
+    input {
+        Array[String] kraken2_results
+        String ver = "Kraken2 unrecorded version"
+    }
+
+    command <<<
+        python <<CODE
+import json
+import sys
+from collections import Counter
+tree = lambda: defaultdict(tree)
+
+tool = dict(
+    name="Kraken2",
+    version=" ".join("~{ver}".replace("version", "v.").split(" ")[1:])
+)
+
+def parse_line(line_iter, genus=None, species=None, subspecies=None, subsubspecies=None, confidence=None):
+    "Recursive function to yield organism predictions from Kraken2 report"
+    try:
+        pct, tot, uni, rank, taxid, *_, name = next(line_iter).lstrip().split()
+        if rank == "G":
+            if genus: # new genus, yield the current genus and start a new one
+                yield from parse_line(iter([]), genus=genus, confidence=confidence) # force a yield
+            yield from parse_line(line_iter, genus=name.strip(), confidence=float(pct))
+        elif rank == "S":
+            if species: # new species, yield the current species and start a new one
+                yield from parse_line(iter([]), genus=genus, species=species, confidence=confidence)
+            yield from parse_line(line_iter, genus=genus, species=name.replace(genus, "").strip(), confidence=float(pct))
+        elif rank == "S1":
+            if subspecies: # new subspecies, yield the current subspecies and start a new one
+                yield from parse_line(iter([]), genus=genus, species=species, subspecies=subspecies, confidence=confidence)
+            yield from parse_line(line_iter, genus=genus, species=species, subspecies=name.strip(), confidence=float(pct))
+        elif rank == "S2":
+            if subsubspecies: # new subsubspecies, yield the current subsubspecies and start a new one
+                yield from parse_line(iter([]), genus=genus, species=species, subspecies=subspecies, subsubspecies=subspecies, confidence=confidence)
+            yield from parse_line(line_iter, genus=genus, species=species, subspecies=subspecies, subsubspecies=name.strip(), confidence=float(pct))
+        else:
+            yield from parse_line(iter([]), genus=genus, species=species, subspecies=subspecies, subsubspecies=subsubspecies, confidence=confidence)
+            yield from parse_line(line_iter)
+    except StopIteration:
+        #print(genus, species, subspecies, subsubspecies, confidence, file=sys.stderr)
+        if genus:
+            if subsubspecies:
+                organism = dict(
+                    name = f"{genus} {species} subsp. {subspecies} {subsubspecies}",
+                    genus=genus,
+                    species=species,
+                    subspecies=subspecies,
+                    subsubspecies=dict(
+                        name=subsubspecies,
+                        rank=""
+                    ),
+                    )
+            elif subspecies:
+                organism = dict(
+                    name = f"{genus} {species} subsp. {subspecies}",
+                    genus=genus,
+                    species=species,
+                    subspecies=subspecies,
+                    )
+            elif species:
+                organism = dict(
+                    name = f"{genus} {species}",
+                    genus=genus,
+                    species=species,
+                    )
+            else:
+                organism = dict(
+                    name = f"{genus} sp.",
+                    genus=genus
+                    )
+            yield dict(
+                tool=tool,
+                organism=organism,
+                confidence=confidence,
+                scheme="Kraken2"
+            )
+        
+        
+with open("~{write_lines(kraken2_results)}", "r") as f:
+    print(json.dumps(list(parse_line(iter(f.readlines())))))
+
+CODE
+    >>>
+
+    output {
+        Array[Prediction] predictions = read_json(stdout())
+    }
+
+    runtime {
+        container: "python:3.12"
+        cpu: 1
+        memory: "512 MB"
+    }
+
+    parameter_meta {
+        kraken2_results: "Kraken2 report"
     }
 }
