@@ -2,7 +2,7 @@
 # Common nanopore tasks for biosurveillance of foodborne pathogens.
 # Author: Justin Payne <justin.payne@fda.hhs.gov>
 
-version 1.1
+version 1.0
 
 
 # docker run \
