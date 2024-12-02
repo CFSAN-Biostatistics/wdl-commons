@@ -13,7 +13,7 @@
 
 # This program is free software: you can redistribute it and/or modify it.
 
-version 1.1
+version 1.0
 
 import "identify.wdl"
 
