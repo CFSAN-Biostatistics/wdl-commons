@@ -155,7 +155,7 @@ task tar {
     }
 
     command <<<
-        tar -~{flags} ~{name}.~{suffix} ~{sep(' ', files)}
+        tar -~{flags} ~{name}.~{suffix} ~{sep=' ' files}
     >>>
 
     output {

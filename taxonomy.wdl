@@ -62,7 +62,7 @@ task mlst_singleton {
 
     command <<<
         mlst --version 2>&1> ver
-        mlst ~{sep(' ', fastas)}
+        mlst ~{sep=' ' fastas}
     >>>
 
     output {
@@ -289,7 +289,7 @@ task seqsero2 {
 
     command <<<
         SeqSero2_package.py --version 2>&1> ver
-        SeqSero2_package.py -m k -t ~{mode} -i ~{sep(' ', files)} -o /out -s
+        SeqSero2_package.py -m k -t ~{mode} -i ~{sep=' ' files} -o /out -s
     >>>
 
     output {

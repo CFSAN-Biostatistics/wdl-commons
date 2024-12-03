@@ -38,7 +38,7 @@ task resfinder {
 
     command <<<
         python -m resfinder --version 2>&1 > ver
-        python -m resfinder -acq ~{if defined(nanopore) then "--nanopore" else ""} ~{if defined(species) then "-s " + "\"" + species + "\"" else ""} ~{if defined(fasta) then "-ifa " + fasta else "-ifq " + sep(" ", fastqs)} -j /out/resfinder.json -o /out/
+        python -m resfinder -acq ~{if defined(nanopore) then "--nanopore" else ""} ~{if defined(species) then "-s " + "\"" + species + "\"" else ""} ~{if defined(fasta) then "-ifa " + fasta else "-ifq "}~{sep=" " fastqs} -j /out/resfinder.json -o /out/
     >>>
 
     output {
