@@ -77,7 +77,7 @@ task mlst_singleton {
     }
 
     parameter_meta {
-        fasta: "Assemblies in FASTA format, optionally compressed."
+        fastas: "Assemblies in FASTA format, optionally compressed."
     }
 }
 
@@ -304,7 +304,8 @@ task seqsero2 {
     }
 
     parameter_meta {
-        fasta: "Reads or assembly file or files."
+        files: "Reads or assembly file or files."
+        mode: "input data type, '1' for interleaved paired-end reads, '2' for separated paired-end reads, '3' for single reads, '4' for genome assembly, '5' for nanopore reads (fasta/fastq)"
     }
 }
 
