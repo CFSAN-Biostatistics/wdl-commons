@@ -42,7 +42,7 @@ task resfinder {
     >>>
 
     output {
-        String version = read_string("ver")
+        String ver = read_string("ver")
         Array[String] results = read_tsv("/out/ResFinder_results_tab.txt")
     }
 
