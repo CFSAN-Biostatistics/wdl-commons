@@ -26,3 +26,14 @@ def test_basecall(tasks):
 
 def test_assemble(tasks):
 	assert False
+      
+@pytest.fixture
+def header():
+    yield from use_file("test/nanopore/header.fq")
+
+def test_get_header(header, tasks, run, outputs):
+    inputs = dict(
+        fastq = header
+    )
+    outputs.update(run(tasks.get_header, inputs))
+    assert outputs["get_header.header"]["runid"] == "56609027e57d2aaa97a6d5b0a8557d8b67018231"
