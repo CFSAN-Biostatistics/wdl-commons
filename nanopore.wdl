@@ -91,11 +91,11 @@ task dorado_basecall {
 task guppy_basecall {
     input {
         File fast5
-        File config
+        File? config
     }
 
     command <<<
-        guppy_basecaller -i ~{fast5} -c ~{config}
+        guppy_basecaller -i ~{fast5} ~{"-c " + config}
     >>>
 
     output {
@@ -112,11 +112,11 @@ task guppy_basecall {
 task assemble {
     input {
         File fastq
-        File config
+        File? config
     }
 
     command <<<
-        flye --nano-raw ~{fastq} --config ~{config}
+        flye --nano-raw ~{fastq} ~{"--config " + config}
     >>>
 
     output {
