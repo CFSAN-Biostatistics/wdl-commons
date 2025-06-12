@@ -40,9 +40,12 @@ def use_file(partial_path):
 #         _, outputs_env = run(cfg, exe=task, inputs=inputs_env, run_dir=tmpdir)
 #     return values_to_json(outputs_env)
 
+class TaskException(Exception):
+    pass
+
 def run_task(wdl, task, inputs, mode='rt'):
     "Run a workflow task using miniwdl as a subprocess and return the outputs as a dict"
-    from subprocess import run, PIPE
+    from subprocess import run, PIPE, CalledProcessError
     project = Path(__file__).parent.parent
     pytest_cache = project / ".pytest_cache"
     curr = os.getcwd()
@@ -79,6 +82,8 @@ def run_task(wdl, task, inputs, mode='rt'):
                 except:
                     pass # do nothing
         return output
+    # except CalledProcessError as e:
+    #     raise TaskException(e.stdout)
     finally: # miniwdl breaks the shell when it fails, try and fix it
         os.chdir(curr)
     
